@@ -196,7 +196,7 @@ export const dict = {
     statusWarm: 'Hangat',
     statusHot: 'Panas',
     statusDealDone: 'Sudah deal',
-    statusPaused: 'Dihentikan',
+    statusPaused: 'Pause',
     pipeline: 'Pipeline',
     allStatuses: 'Semua',
     changeStatus: 'Ubah status',

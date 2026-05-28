@@ -112,14 +112,19 @@ function CustomersInner() {
       <AppHeader
         title={t('customers')}
         right={
-          <button
-            onClick={handleExport}
-            disabled={exporting || customers.length === 0}
-            className="text-xs text-neutral-700 underline disabled:text-neutral-400"
-            title={t('exportCsv')}
-          >
-            {exporting ? '…' : t('exportCsv')}
-          </button>
+          <div className="flex items-center gap-3">
+            <Link href="/customers/import" className="text-xs text-neutral-700 underline">
+              {t('importCsv')}
+            </Link>
+            <button
+              onClick={handleExport}
+              disabled={exporting || customers.length === 0}
+              className="text-xs text-neutral-700 underline disabled:text-neutral-400"
+              title={t('exportCsv')}
+            >
+              {exporting ? '…' : t('exportCsv')}
+            </button>
+          </div>
         }
       />
       <main className="px-4 py-4 flex flex-col gap-4">

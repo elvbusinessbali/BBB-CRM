@@ -7,6 +7,7 @@ import { useT } from '@/lib/i18n/LanguageProvider';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { SetupNeeded } from '@/components/SetupNeeded';
 import { Captcha, captchaRequired } from '@/components/Captcha';
+import { authErrorMessage } from '@/lib/authError';
 
 export default function ForgotPasswordPage() {
   if (!isConfigured()) return <SetupNeeded />;
@@ -38,7 +39,7 @@ function ForgotForm() {
     });
     setLoading(false);
     if (error) {
-      setError(error.message);
+      setError(authErrorMessage(error, t));
       return;
     }
     setInfo(t('resetLinkSent'));

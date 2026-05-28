@@ -8,6 +8,7 @@ import { useT } from '@/lib/i18n/LanguageProvider';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { SetupNeeded } from '@/components/SetupNeeded';
 import { PasswordInput } from '@/components/PasswordInput';
+import { authErrorMessage } from '@/lib/authError';
 
 export default function ResetPasswordPage() {
   if (!isConfigured()) return <SetupNeeded />;
@@ -47,7 +48,7 @@ function ResetForm() {
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
-      setError(error.message);
+      setError(authErrorMessage(error, t));
       return;
     }
     setInfo(t('passwordUpdated'));

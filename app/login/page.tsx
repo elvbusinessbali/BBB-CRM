@@ -9,6 +9,7 @@ import { LanguageToggle } from '@/components/LanguageToggle';
 import { SetupNeeded } from '@/components/SetupNeeded';
 import { Captcha, captchaRequired } from '@/components/Captcha';
 import { PasswordInput } from '@/components/PasswordInput';
+import { authErrorMessage } from '@/lib/authError';
 
 export default function LoginPage() {
   if (!isConfigured()) return <SetupNeeded />;
@@ -40,7 +41,7 @@ function LoginForm() {
     });
     setLoading(false);
     if (error) {
-      setError(error.message);
+      setError(authErrorMessage(error, t));
       return;
     }
     router.push('/dashboard');

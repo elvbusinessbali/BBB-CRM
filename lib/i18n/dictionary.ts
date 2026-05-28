@@ -35,6 +35,15 @@ export const dict = {
     // Captcha
     captchaRequired: 'Please complete the verification.',
 
+    // Auth errors (friendly versions of Supabase server messages)
+    errEmailRateLimit: "You've requested too many emails in a short time. Wait an hour, or try a different email address.",
+    errBadCredentials: 'Wrong email or password.',
+    errEmailNotConfirmed: 'You need to confirm your email first — check your inbox.',
+    errCaptcha: 'Verification failed. Please try the captcha again.',
+    errWeakPassword: 'That password is too short or too easy. Use at least 6 characters.',
+    errUserExists: 'An account with that email already exists. Try logging in instead.',
+    errLinkExpired: 'This link has expired. Request a new one.',
+
     // Nav
     home: 'Home',
     customers: 'Customers',
@@ -201,6 +210,15 @@ export const dict = {
 
     // Captcha
     captchaRequired: 'Mohon selesaikan verifikasi.',
+
+    // Auth errors (friendly versions of Supabase server messages)
+    errEmailRateLimit: 'Kamu udah minta terlalu banyak email dalam waktu singkat. Tunggu sejam, atau pakai email lain.',
+    errBadCredentials: 'Email atau kata sandi salah.',
+    errEmailNotConfirmed: 'Kamu perlu konfirmasi email kamu dulu — cek inbox.',
+    errCaptcha: 'Verifikasi gagal. Coba captcha-nya lagi.',
+    errWeakPassword: 'Kata sandi terlalu pendek atau gampang. Pakai minimal 6 karakter.',
+    errUserExists: 'Akun dengan email ini udah ada. Coba masuk aja.',
+    errLinkExpired: 'Link ini udah kedaluwarsa. Minta link baru.',
 
     home: 'Beranda',
     customers: 'Customer',

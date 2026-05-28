@@ -18,6 +18,7 @@ import { formatAmount } from '@/lib/format';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { AppHeader } from '@/components/AppHeader';
 import { StatusPill } from '@/components/StatusPill';
+import { HelpButton } from '@/components/HelpButton';
 
 export default function CustomerDetailPage() {
   const { t, lang } = useT();
@@ -112,7 +113,10 @@ export default function CustomerDetailPage() {
         <section className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col gap-3">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-wide text-neutral-500">{t('lifetimeValue')}</p>
+              <p className="text-xs uppercase tracking-wide text-neutral-500 flex items-center gap-1.5">
+                {t('lifetimeValue')}
+                <HelpButton titleKey="helpLtvTitle" bodyKey="helpLtvBody" />
+              </p>
               <p className="text-3xl font-bold tabular-nums">{formatAmount(ltv, lang)}</p>
               <p className="text-xs text-neutral-500 mt-0.5">
                 {interactions.length} {t('timeline').toLowerCase()}

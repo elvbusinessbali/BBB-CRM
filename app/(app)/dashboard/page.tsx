@@ -15,6 +15,7 @@ import { STATUSES, STATUS_META } from '@/lib/status';
 import { formatAmount } from '@/lib/format';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { AppHeader } from '@/components/AppHeader';
+import { HelpButton } from '@/components/HelpButton';
 
 export default function DashboardPage() {
   const { t, lang } = useT();
@@ -86,8 +87,20 @@ export default function DashboardPage() {
           <>
             <div className="grid grid-cols-1 gap-3">
               <StatCard label={t('totalCustomers')} value={total} accent="neutral" />
-              <StatCard label={t('totalCustomersLtv')} value={formatAmount(totalSpend, lang)} accent="neutral" />
-              <StatCard label={t('dormant30')} value={dormant} accent="amber" />
+              <StatCard
+                label={t('totalCustomersLtv')}
+                value={formatAmount(totalSpend, lang)}
+                accent="neutral"
+                helpTitleKey="helpIncomeTitle"
+                helpBodyKey="helpIncomeBody"
+              />
+              <StatCard
+                label={t('dormant30')}
+                value={dormant}
+                accent="amber"
+                helpTitleKey="helpDormantTitle"
+                helpBodyKey="helpDormantBody"
+              />
               <StatCard
                 label={t('birthdaysToday')}
                 value={birthdays.length}
@@ -97,7 +110,10 @@ export default function DashboardPage() {
             </div>
 
             <div>
-              <p className="text-xs uppercase tracking-wide text-neutral-500 mb-2">{t('pipeline')}</p>
+              <p className="text-xs uppercase tracking-wide text-neutral-500 mb-2 flex items-center gap-2">
+                {t('pipeline')}
+                <HelpButton titleKey="helpPipelineTitle" bodyKey="helpPipelineBody" />
+              </p>
               <div className="-mx-4 px-4 overflow-x-auto">
                 <div className="flex gap-2 w-max">
                   {STATUSES.map((s) => {
@@ -149,17 +165,24 @@ function StatCard({
   value,
   accent,
   detail,
+  helpTitleKey,
+  helpBodyKey,
 }: {
   label: string;
   value: number | string;
   accent: 'neutral' | 'amber' | 'rose';
   detail?: string;
+  helpTitleKey?: import('@/lib/i18n/dictionary').DictKey;
+  helpBodyKey?: import('@/lib/i18n/dictionary').DictKey;
 }) {
   const accentBg = { neutral: 'bg-white', amber: 'bg-amber-50', rose: 'bg-rose-50' }[accent];
   return (
     <div className={`rounded-2xl border border-neutral-200 ${accentBg} px-4 py-4`}>
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-sm text-neutral-600">{label}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm text-neutral-600">{label}</p>
+          {helpTitleKey && helpBodyKey && <HelpButton titleKey={helpTitleKey} bodyKey={helpBodyKey} />}
+        </div>
         <p className="text-3xl font-bold tabular-nums">{value}</p>
       </div>
       {detail && <p className="text-xs text-neutral-500 mt-1">{detail}</p>}

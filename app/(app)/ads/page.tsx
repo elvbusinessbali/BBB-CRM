@@ -20,6 +20,7 @@ import {
 import { formatAmount } from '@/lib/format';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { AppHeader } from '@/components/AppHeader';
+import { HelpButton } from '@/components/HelpButton';
 
 export default function AdsPage() {
   const { t, lang } = useT();
@@ -78,12 +79,15 @@ export default function AdsPage() {
       <AppHeader
         title={t('ads')}
         right={
-          <button
-            onClick={() => setEditing('new')}
-            className="text-xs text-neutral-700 underline"
-          >
-            + {t('newCampaign')}
-          </button>
+          <div className="flex items-center gap-2">
+            <HelpButton titleKey="helpAdsTitle" bodyKey="helpAdsBody" />
+            <button
+              onClick={() => setEditing('new')}
+              className="text-xs text-neutral-700 underline"
+            >
+              + {t('newCampaign')}
+            </button>
+          </div>
         }
       />
       <main className="px-4 py-4 flex flex-col gap-4">
@@ -98,10 +102,14 @@ export default function AdsPage() {
               <SummaryCard
                 label={t('avgCac')}
                 value={overallCac == null ? '—' : formatAmount(overallCac, lang)}
+                helpTitleKey="helpCacTitle"
+                helpBodyKey="helpCacBody"
               />
               <SummaryCard
                 label={t('overallRoas')}
                 value={overallRoas == null ? '—' : `${overallRoas.toFixed(1)}×`}
+                helpTitleKey="helpRoasTitle"
+                helpBodyKey="helpRoasBody"
               />
             </section>
 
@@ -174,10 +182,23 @@ export default function AdsPage() {
   );
 }
 
-function SummaryCard({ label, value }: { label: string; value: string }) {
+function SummaryCard({
+  label,
+  value,
+  helpTitleKey,
+  helpBodyKey,
+}: {
+  label: string;
+  value: string;
+  helpTitleKey?: import('@/lib/i18n/dictionary').DictKey;
+  helpBodyKey?: import('@/lib/i18n/dictionary').DictKey;
+}) {
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white px-3 py-3">
-      <p className="text-xs text-neutral-500">{label}</p>
+      <div className="flex items-center gap-1.5">
+        <p className="text-xs text-neutral-500">{label}</p>
+        {helpTitleKey && helpBodyKey && <HelpButton titleKey={helpTitleKey} bodyKey={helpBodyKey} />}
+      </div>
       <p className="text-xl font-bold tabular-nums">{value}</p>
     </div>
   );

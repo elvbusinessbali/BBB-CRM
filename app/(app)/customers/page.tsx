@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -16,6 +16,24 @@ import { AppHeader } from '@/components/AppHeader';
 import { StatusPill } from '@/components/StatusPill';
 
 export default function CustomersPage() {
+  return (
+    <Suspense fallback={<CustomersFallback />}>
+      <CustomersInner />
+    </Suspense>
+  );
+}
+
+function CustomersFallback() {
+  const { t } = useT();
+  return (
+    <>
+      <AppHeader title={t('customers')} />
+      <main className="px-4 py-12 text-center text-neutral-500">{t('loading')}</main>
+    </>
+  );
+}
+
+function CustomersInner() {
   const { t, lang } = useT();
   const router = useRouter();
   const searchParams = useSearchParams();

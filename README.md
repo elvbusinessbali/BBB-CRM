@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BBB CRM
 
-## Getting Started
+A dead-simple CRM for small business owners. Customers, interactions, lifetime value, pipeline.
 
-First, run the development server:
+Built with **Next.js 16** + **Supabase** + **Tailwind**. Mobile-first. EN + ID.
+
+## What's in it
+
+- **Sign up / log in** — email + password
+- **Customer database** — name, phone, email, birthday, tags, notes, status
+- **Pipeline status** per customer: Cold · Warm · Hot · Deal done · Paused
+- **Interactions timeline** — log visits, calls, sales (with amount)
+- **Lifetime Value** — auto-summed from interactions, shown per customer + totals on the dashboard
+- **Dashboard** — total customers, dormant (30+ days), birthdays today, pipeline counts
+
+Multi-tenant: each business sees only its own data (Supabase Row-Level Security).
+
+## Run it locally
 
 ```bash
+npm install
+cp .env.local.example .env.local   # then fill in your Supabase keys
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Supabase setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a project at <https://supabase.com>.
+2. **SQL Editor → New query**: paste [`supabase/schema.sql`](supabase/schema.sql), Run.
+3. If you ran the schema before status existed, also run [`supabase/migrations/01_add_status.sql`](supabase/migrations/01_add_status.sql).
+4. **Project Settings → API**: copy the URL + `anon` key into `.env.local`.
 
-## Learn More
+### Environment variables
 
-To learn more about Next.js, take a look at the following resources:
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Both are safe to expose in the browser bundle — your data is protected by RLS policies on the server side.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Vercel — connect this repo, paste the two env vars, click Deploy. Then add your Vercel URL to Supabase → Authentication → URL Configuration.

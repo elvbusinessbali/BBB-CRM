@@ -12,6 +12,7 @@ export function BottomNav() {
     { href: '/dashboard', label: t('home'), icon: HomeIcon },
     { href: '/customers', label: t('customers'), icon: PeopleIcon },
     { href: '/customers/new', label: t('add'), icon: PlusIcon, primary: true },
+    { href: '/ads', label: t('ads'), icon: AdsIcon },
   ];
 
   return (
@@ -19,7 +20,7 @@ export function BottomNav() {
       className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur border-t border-neutral-200"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="max-w-md mx-auto grid grid-cols-3">
+      <div className="max-w-md mx-auto grid grid-cols-4">
         {items.map((it) => {
           const active = pathname === it.href || (it.href !== '/dashboard' && pathname.startsWith(it.href));
           const Icon = it.icon;
@@ -73,6 +74,15 @@ function PlusIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+function AdsIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M3 11l13-5v12L3 13z" />
+      <path d="M16 9v6" />
+      <path d="M19 10v4" />
     </svg>
   );
 }

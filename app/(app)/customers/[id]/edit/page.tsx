@@ -8,6 +8,7 @@ import { STATUSES, STATUS_META, type Status } from '@/lib/status';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { AppHeader } from '@/components/AppHeader';
 import { TagPicker } from '@/components/TagPicker';
+import { CampaignPicker } from '@/components/CampaignPicker';
 
 export default function EditCustomerPage() {
   const { t } = useT();
@@ -24,8 +25,10 @@ export default function EditCustomerPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState<Status>('cold');
+  const [campaignId, setCampaignId] = useState<string | null>(null);
 
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,6 +52,22 @@ export default function EditCustomerPage() {
     setTags(c.tags ?? []);
     setNotes(c.notes ?? '');
     setStatus(c.status);
+    setCampaignId(c.campaign_id ?? null);
+  }
+
+  async function handleDelete() {
+    if (!confirm(t('confirmDelete'))) return;
+    setDeleting(true);
+    setError(null);
+    const supabase = createClient();
+    const { error } = await supabase.from('customers').delete().eq('id', customerId);
+    if (error) {
+      setError(error.message);
+      setDeleting(false);
+      return;
+    }
+    router.push('/customers');
+    router.refresh();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -70,6 +89,7 @@ export default function EditCustomerPage() {
           tags,
           notes: notes.trim() || null,
           status,
+          campaign_id: campaignId,
         })
         .eq('id', customerId);
       if (error) throw error;
@@ -147,6 +167,11 @@ export default function EditCustomerPage() {
           </label>
 
           <div className="flex flex-col gap-1">
+            <span className="text-sm text-neutral-700">{t('howFoundYou')}</span>
+            <CampaignPicker value={campaignId} onChange={setCampaignId} />
+          </div>
+
+          <div className="flex flex-col gap-1">
             <span className="text-sm text-neutral-700">{t('tags')}</span>
             <TagPicker value={tags} onChange={setTags} />
           </div>
@@ -173,6 +198,19 @@ export default function EditCustomerPage() {
             </button>
           </div>
         </form>
+
+        <section className="mt-8 border-t border-red-100 pt-4">
+          <p className="text-xs uppercase tracking-wide text-red-600 mb-1">{t('dangerZone')}</p>
+          <p className="text-xs text-neutral-500 mb-3">{t('dangerZoneHint')}</p>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="rounded-full border border-red-300 text-red-700 px-4 py-2 text-sm font-medium hover:bg-red-50 disabled:opacity-60"
+          >
+            {deleting ? t('saving') : t('deleteCustomer')}
+          </button>
+        </section>
       </main>
     </>
   );

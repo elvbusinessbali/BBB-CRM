@@ -129,7 +129,11 @@ export default function CustomerDetailPage() {
 
           <div className="border-t border-neutral-100 pt-3 flex flex-col gap-2">
             <Row label={t('phone')} value={customer.phone ?? '—'} />
-            <Row label={t('email')} value={customer.email ?? '—'} />
+            <Row
+              label={t('email')}
+              value={customer.email ?? '—'}
+              href={customer.email ? `mailto:${customer.email}` : undefined}
+            />
             <Row label={t('birthday')} value={customer.birthday ?? '—'} />
           </div>
           {customer.tags.length > 0 && (
@@ -209,11 +213,22 @@ export default function CustomerDetailPage() {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value, href }: { label: string; value: string; href?: string }) {
   return (
     <div className="flex justify-between text-sm">
       <span className="text-neutral-500">{label}</span>
-      <span className="text-neutral-900 truncate ml-2">{value}</span>
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-brand underline truncate ml-2"
+        >
+          {value}
+        </a>
+      ) : (
+        <span className="text-neutral-900 truncate ml-2">{value}</span>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { STATUSES, STATUS_META, type Status } from '@/lib/status';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { AppHeader } from '@/components/AppHeader';
 import { TagPicker } from '@/components/TagPicker';
+import { CampaignPicker } from '@/components/CampaignPicker';
 
 export default function NewCustomerPage() {
   const { t } = useT();
@@ -20,6 +21,7 @@ export default function NewCustomerPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState<Status>('cold');
+  const [campaignId, setCampaignId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +46,7 @@ export default function NewCustomerPage() {
           tags,
           notes: notes || null,
           status,
+          campaign_id: campaignId,
         })
         .select('id')
         .single();
@@ -110,6 +113,11 @@ export default function NewCustomerPage() {
             <span className="text-sm text-neutral-700">{t('birthday')}</span>
             <input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} className={inputCls} />
           </label>
+
+          <div className="flex flex-col gap-1">
+            <span className="text-sm text-neutral-700">{t('howFoundYou')}</span>
+            <CampaignPicker value={campaignId} onChange={setCampaignId} />
+          </div>
 
           <div className="flex flex-col gap-1">
             <span className="text-sm text-neutral-700">{t('tags')}</span>

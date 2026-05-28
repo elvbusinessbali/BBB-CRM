@@ -12,6 +12,20 @@ create table public.businesses (
   created_at  timestamptz not null default now()
 );
 
+create table public.ad_campaigns (
+  id          uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  name        text not null,
+  source      text,
+  spend       numeric(12,2) not null default 0,
+  started_at  date,
+  ended_at    date,
+  notes       text,
+  created_at  timestamptz not null default now()
+);
+
+create index ad_campaigns_business_idx on public.ad_campaigns(business_id, started_at desc);
+
 create table public.customers (
   id          uuid primary key default gen_random_uuid(),
   business_id uuid not null references public.businesses(id) on delete cascade,
@@ -24,12 +38,14 @@ create table public.customers (
   tags        text[] not null default '{}',
   notes       text,
   status      text not null default 'cold' check (status in ('cold','warm','hot','deal_done','paused')),
+  campaign_id uuid references public.ad_campaigns(id) on delete set null,
   created_at  timestamptz not null default now()
 );
 
 create index customers_business_idx on public.customers(business_id);
 create index customers_birthday_idx on public.customers(business_id, birthday);
 create index customers_status_idx on public.customers(business_id, status);
+create index customers_campaign_idx on public.customers(campaign_id);
 
 create table public.business_tags (
   id          uuid primary key default gen_random_uuid(),
@@ -80,6 +96,7 @@ alter table public.businesses    enable row level security;
 alter table public.customers     enable row level security;
 alter table public.interactions  enable row level security;
 alter table public.business_tags enable row level security;
+alter table public.ad_campaigns  enable row level security;
 
 create policy "own business: select" on public.businesses
   for select using (owner_id = auth.uid());
@@ -101,6 +118,13 @@ create policy "own interactions: all" on public.interactions
   );
 
 create policy "own tags: all" on public.business_tags
+  for all using (
+    business_id in (select id from public.businesses where owner_id = auth.uid())
+  ) with check (
+    business_id in (select id from public.businesses where owner_id = auth.uid())
+  );
+
+create policy "own ad_campaigns: all" on public.ad_campaigns
   for all using (
     business_id in (select id from public.businesses where owner_id = auth.uid())
   ) with check (

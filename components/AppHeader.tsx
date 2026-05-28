@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { PipelineLogo } from '@/components/PipelineLogo';
 
 export function AppHeader({ title, back, right }: { title?: string; back?: boolean; right?: React.ReactNode }) {
   const router = useRouter();
@@ -29,6 +30,7 @@ export function AppHeader({ title, back, right }: { title?: string; back?: boole
               ←
             </button>
           )}
+          {!back && !title && <PipelineLogo className="h-4 w-auto shrink-0" />}
           <h1 className="text-base font-semibold truncate">{title ?? t('appName')}</h1>
         </div>
         <div className="flex items-center gap-2">

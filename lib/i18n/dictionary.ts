@@ -84,6 +84,14 @@ export const dict = {
     csvEmpty: 'That file looks empty.',
     importedN: '✓ Imported {n} customers',
 
+    // Edit + tag management
+    edit: 'Edit',
+    editCustomer: 'Edit customer',
+    delete: 'Delete',
+    manageTags: 'Manage tags',
+    manageTagsHint: 'Renaming a tag updates it on every customer who uses it.',
+    confirmDeleteTag: 'Delete the tag "{name}"? Customers will keep the label but the catalog row goes away.',
+
     // Customer detail
     timeline: 'History',
     noInteractionsYet: 'No history yet.',
@@ -108,7 +116,7 @@ export const dict = {
     statusCold: 'Cold',
     statusWarm: 'Warm',
     statusHot: 'Hot',
-    statusDealDone: 'Deal done',
+    statusDealDone: 'Active',
     statusPaused: 'Paused',
     pipeline: 'Pipeline',
     allStatuses: 'All',
@@ -200,6 +208,14 @@ export const dict = {
     csvEmpty: 'File-nya kelihatan kosong.',
     importedN: '✓ {n} customer berhasil diimport',
 
+    // Edit + tag management
+    edit: 'Edit',
+    editCustomer: 'Edit customer',
+    delete: 'Hapus',
+    manageTags: 'Atur tag',
+    manageTagsHint: 'Ubah nama tag bakal kepake ke semua customer yang punya tag itu.',
+    confirmDeleteTag: 'Hapus tag "{name}"? Customer tetep punya label-nya, tapi tag-nya hilang dari katalog.',
+
     timeline: 'Riwayat',
     noInteractionsYet: 'Belum ada riwayat.',
     logInteraction: 'Catat kunjungan',
@@ -223,7 +239,7 @@ export const dict = {
     statusCold: 'Dingin',
     statusWarm: 'Hangat',
     statusHot: 'Panas',
-    statusDealDone: 'Sudah deal',
+    statusDealDone: 'Aktif',
     statusPaused: 'Pause',
     pipeline: 'Pipeline',
     allStatuses: 'Semua',

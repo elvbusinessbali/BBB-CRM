@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import {
   getCustomer,
@@ -21,7 +22,6 @@ import { StatusPill } from '@/components/StatusPill';
 export default function CustomerDetailPage() {
   const { t, lang } = useT();
   const params = useParams<{ id: string }>();
-  const router = useRouter();
   const customerId = params.id;
 
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -50,13 +50,6 @@ export default function CustomerDetailPage() {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerId]);
-
-  async function handleDelete() {
-    if (!confirm(t('confirmDelete'))) return;
-    const supabase = createClient();
-    const { error } = await supabase.from('customers').delete().eq('id', customerId);
-    if (!error) router.push('/customers');
-  }
 
   async function handleStatusChange(newStatus: Status) {
     if (!customer || customer.status === newStatus) {
@@ -106,7 +99,15 @@ export default function CustomerDetailPage() {
 
   return (
     <>
-      <AppHeader title={fullName(customer)} back />
+      <AppHeader
+        title={fullName(customer)}
+        back
+        right={
+          <Link href={`/customers/${customer.id}/edit`} className="text-xs text-neutral-700 underline">
+            {t('edit')}
+          </Link>
+        }
+      />
       <main className="px-4 py-4 flex flex-col gap-4">
         <section className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col gap-3">
           <div className="flex items-start justify-between gap-3">
@@ -184,12 +185,6 @@ export default function CustomerDetailPage() {
           )}
         </section>
 
-        <button
-          onClick={handleDelete}
-          className="text-sm text-red-600 underline self-start mt-4"
-        >
-          {t('deleteCustomer')}
-        </button>
       </main>
 
       {showLog && (

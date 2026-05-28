@@ -153,3 +153,21 @@ export async function deleteBusinessTag(supabase: SupabaseClient, id: string) {
   const { error } = await supabase.from('business_tags').delete().eq('id', id);
   if (error) throw error;
 }
+
+export async function renameBusinessTag(
+  supabase: SupabaseClient,
+  id: string,
+  newName: string,
+  newColor?: TagColor
+) {
+  const updates: { name: string; color?: TagColor } = { name: newName.trim() };
+  if (newColor) updates.color = newColor;
+  const { data, error } = await supabase
+    .from('business_tags')
+    .update(updates)
+    .eq('id', id)
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data as BusinessTag;
+}

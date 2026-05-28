@@ -55,25 +55,25 @@ function HelpSheet({ title, body, onClose }: { title: string; body: string; onCl
   const { t } = useT();
   return (
     <div
-      className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40"
+      className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-5 flex flex-col gap-3 max-h-[80vh] overflow-y-auto"
+        className="bg-white rounded-2xl w-full max-w-xs sm:max-w-sm p-4 flex flex-col gap-2 max-h-[70vh] overflow-y-auto shadow-xl"
       >
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-semibold text-base">{title}</h3>
-          <button type="button" onClick={onClose} className="text-neutral-500 text-xl px-2 -mt-1">✕</button>
+          <h3 className="font-semibold text-sm">{title}</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-neutral-400 hover:text-neutral-700 text-lg leading-none -mt-0.5"
+            aria-label={t('gotIt')}
+          >
+            ✕
+          </button>
         </div>
-        <p className="text-sm text-neutral-700 whitespace-pre-wrap leading-relaxed">{body}</p>
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-full bg-brand text-white py-2.5 font-medium mt-2"
-        >
-          {t('gotIt')}
-        </button>
+        <p className="text-xs text-neutral-700 whitespace-pre-wrap leading-relaxed">{body}</p>
       </div>
     </div>
   );

@@ -9,6 +9,8 @@ export type ParsedCustomer = {
   tags: string[];
   notes: string | null;
   status: Status;
+  /** Raw campaign-name value from the CSV. Resolved to an id at import time. */
+  campaign_name: string | null;
   /** Raw source row, for the user-facing preview. */
   _source: Record<string, string>;
 };
@@ -98,7 +100,8 @@ type Field =
   | 'birthday'
   | 'tags'
   | 'notes'
-  | 'status';
+  | 'status'
+  | 'campaign';
 
 const FIELD_ALIASES: Record<Field, string[]> = {
   first_name: [
@@ -143,6 +146,11 @@ const FIELD_ALIASES: Record<Field, string[]> = {
   status: [
     'status', 'stage', 'pipeline', 'state', 'lead status', 'customer status',
     'tahap', 'kondisi',
+  ],
+  campaign: [
+    'campaign', 'campaign name', 'ad campaign', 'ad', 'ads', 'source campaign',
+    'attribution', 'attribute to', 'sumber', 'kampanye', 'iklan', 'sumber leads',
+    'lead source', 'leadsource', 'how they found', 'how found',
   ],
 };
 
@@ -244,6 +252,8 @@ export function mapRow(row: Record<string, string>, cols: ColumnMap): ParsedCust
     status = STATUS_ALIASES[statusRaw];
   }
 
+  const campaign_name = get('campaign').trim() || null;
+
   return {
     first_name: first,
     last_name: last,
@@ -253,8 +263,39 @@ export function mapRow(row: Record<string, string>, cols: ColumnMap): ParsedCust
     tags,
     notes,
     status,
+    campaign_name,
     _source: row,
   };
+}
+
+/**
+ * CSV "starter template" — the headers our importer recognizes, plus one example row.
+ * Users can download this, fill it in, and re-upload without thinking about column mapping.
+ */
+export function buildTemplateCsv(): string {
+  const headers = [
+    'First name',
+    'Last name',
+    'Phone',
+    'Email',
+    'Birthday',
+    'Tags',
+    'Notes',
+    'Status',
+    'Campaign',
+  ];
+  const sample = [
+    'Andini',
+    'Pratiwi',
+    '081234567890',
+    'andini@email.com',
+    '1990-03-15',
+    'VIP; Regular',
+    'Member sejak 2024',
+    'cold',
+    '',
+  ];
+  return [headers.join(','), sample.join(',')].join('\n');
 }
 
 /** Strip spaces, dashes, parens; keep leading + if present. Returns null if no digits. */

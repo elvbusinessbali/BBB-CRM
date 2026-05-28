@@ -1,17 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { getMyBusiness } from '@/lib/supabase/queries';
+import { getAdCampaigns, getMyBusiness, type AdCampaign } from '@/lib/supabase/queries';
 import {
+  buildTemplateCsv,
   parseCsv,
   detectColumns,
   mapRow,
   type ColumnMap,
   type ParsedCustomer,
 } from '@/lib/csvImport';
+import { downloadCsv } from '@/lib/csv';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import type { DictKey } from '@/lib/i18n/dictionary';
 import { AppHeader } from '@/components/AppHeader';
@@ -26,10 +28,29 @@ export default function ImportCustomersPage() {
   const [rawCount, setRawCount] = useState(0);
   const [fileName, setFileName] = useState('');
 
+  const [campaigns, setCampaigns] = useState<AdCampaign[]>([]);
+  const [bulkCampaignId, setBulkCampaignId] = useState<string>(''); // '' = no override
+
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [doneCount, setDoneCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    (async () => {
+      try {
+        const cs = await getAdCampaigns(supabase);
+        setCampaigns(cs);
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, []);
+
+  function handleDownloadTemplate() {
+    downloadCsv('bbb-crm-import-template.csv', buildTemplateCsv());
+  }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     setError(null);
@@ -62,18 +83,26 @@ export default function ImportCustomersPage() {
     }
   }
 
-  // Re-derive parsed when user changes column map manually
   function changeMapping(field: keyof ColumnMap, header: string) {
     const next: ColumnMap = { ...cols, [field]: header || undefined };
     if (!header) delete next[field];
     setCols(next);
-    // Re-map rows from raw source preserved on parsed[i]._source
     const remapped: ParsedCustomer[] = [];
     for (const p of parsed) {
       const m = mapRow(p._source, next);
       if (m) remapped.push(m);
     }
     setParsed(remapped);
+  }
+
+  /** Resolve a row to a final campaign_id: bulk override > per-row name match > null. */
+  function resolveCampaignId(p: ParsedCustomer): string | null {
+    if (bulkCampaignId) return bulkCampaignId;
+    if (!p.campaign_name) return null;
+    const match = campaigns.find(
+      (c) => c.name.toLowerCase() === p.campaign_name!.toLowerCase()
+    );
+    return match?.id ?? null;
   }
 
   async function handleImport() {
@@ -99,6 +128,7 @@ export default function ImportCustomersPage() {
           tags: p.tags,
           notes: p.notes,
           status: p.status,
+          campaign_id: resolveCampaignId(p),
         }));
         const { error } = await supabase.from('customers').insert(rows);
         if (error) throw error;
@@ -124,7 +154,15 @@ export default function ImportCustomersPage() {
     'tags',
     'notes',
     'status',
+    'campaign',
   ];
+
+  // How many parsed rows mention a campaign name, and how many of those resolve?
+  const rowsWithCampaign = parsed.filter((p) => p.campaign_name).length;
+  const rowsResolvedByName = parsed.filter((p) => {
+    if (!p.campaign_name) return false;
+    return campaigns.some((c) => c.name.toLowerCase() === p.campaign_name!.toLowerCase());
+  }).length;
 
   return (
     <>
@@ -141,9 +179,18 @@ export default function ImportCustomersPage() {
           </div>
         ) : (
           <>
-            {/* Step 1: upload */}
+            {/* Step 1: upload (with template download) */}
             <section className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col gap-2">
-              <h2 className="font-medium">1. {t('chooseFile')}</h2>
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="font-medium">1. {t('chooseFile')}</h2>
+                <button
+                  type="button"
+                  onClick={handleDownloadTemplate}
+                  className="text-xs text-brand underline"
+                >
+                  ↓ {t('downloadTemplate')}
+                </button>
+              </div>
               <p className="text-xs text-neutral-500">{t('importHint')}</p>
               <label className="rounded-xl border-2 border-dashed border-neutral-300 px-4 py-6 flex flex-col items-center gap-2 cursor-pointer hover:bg-neutral-50">
                 <span className="text-2xl">📄</span>
@@ -154,10 +201,44 @@ export default function ImportCustomersPage() {
               </label>
             </section>
 
-            {/* Step 2: column mapping */}
+            {/* Step 2: attribute to a campaign (bulk) */}
+            {parsed.length > 0 && (
+              <section className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col gap-2">
+                <h2 className="font-medium">2. {t('attributeAll')}</h2>
+                <p className="text-xs text-neutral-500">{t('attributeAllHint')}</p>
+                {campaigns.length === 0 ? (
+                  <p className="text-xs text-neutral-500">
+                    {t('noCampaignsYet')}{' '}
+                    <Link href="/ads" className="text-brand underline">{t('ads')}</Link>
+                  </p>
+                ) : (
+                  <select
+                    value={bulkCampaignId}
+                    onChange={(e) => setBulkCampaignId(e.target.value)}
+                    className="border border-neutral-200 rounded-xl px-3 py-2.5 text-base bg-white outline-none focus:border-brand"
+                  >
+                    <option value="">— {t('attributePerRow')} —</option>
+                    {campaigns.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}{c.source ? ` (${c.source})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {!bulkCampaignId && rowsWithCampaign > 0 && (
+                  <p className="text-xs text-neutral-500">
+                    {t('campaignResolveStatus')
+                      .replace('{matched}', String(rowsResolvedByName))
+                      .replace('{total}', String(rowsWithCampaign))}
+                  </p>
+                )}
+              </section>
+            )}
+
+            {/* Step 3: column mapping */}
             {headers.length > 0 && (
               <section className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col gap-3">
-                <h2 className="font-medium">2. {t('matchColumns')}</h2>
+                <h2 className="font-medium">3. {t('matchColumns')}</h2>
                 <p className="text-xs text-neutral-500">{t('matchColumnsHint')}</p>
                 <div className="grid grid-cols-2 gap-x-2 gap-y-2 text-sm">
                   {fieldsToShow.map((field) => (
@@ -179,11 +260,11 @@ export default function ImportCustomersPage() {
               </section>
             )}
 
-            {/* Step 3: preview */}
+            {/* Step 4: preview */}
             {parsed.length > 0 && (
               <section className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col gap-2">
                 <h2 className="font-medium">
-                  3. {t('previewImport').replace('{n}', String(parsed.length)).replace('{total}', String(rawCount))}
+                  4. {t('previewImport').replace('{n}', String(parsed.length)).replace('{total}', String(rawCount))}
                 </h2>
                 <div className="overflow-x-auto -mx-4 px-4">
                   <table className="w-full text-xs">
@@ -194,18 +275,26 @@ export default function ImportCustomersPage() {
                         <th className="text-left pr-3 font-normal">Phone</th>
                         <th className="text-left pr-3 font-normal">Email</th>
                         <th className="text-left pr-3 font-normal">Status</th>
+                        <th className="text-left pr-3 font-normal">{t('source')}</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {parsed.slice(0, 5).map((p, i) => (
-                        <tr key={i} className="border-t border-neutral-100">
-                          <td className="py-1 pr-3">{p.first_name}</td>
-                          <td className="py-1 pr-3">{p.last_name ?? ''}</td>
-                          <td className="py-1 pr-3">{p.phone ?? ''}</td>
-                          <td className="py-1 pr-3">{p.email ?? ''}</td>
-                          <td className="py-1 pr-3">{p.status}</td>
-                        </tr>
-                      ))}
+                      {parsed.slice(0, 5).map((p, i) => {
+                        const cid = resolveCampaignId(p);
+                        const campName = cid ? campaigns.find((c) => c.id === cid)?.name : null;
+                        return (
+                          <tr key={i} className="border-t border-neutral-100">
+                            <td className="py-1 pr-3">{p.first_name}</td>
+                            <td className="py-1 pr-3">{p.last_name ?? ''}</td>
+                            <td className="py-1 pr-3">{p.phone ?? ''}</td>
+                            <td className="py-1 pr-3">{p.email ?? ''}</td>
+                            <td className="py-1 pr-3">{p.status}</td>
+                            <td className="py-1 pr-3 truncate max-w-[110px]">
+                              {campName ?? (p.campaign_name ? `${p.campaign_name} ⚠` : '—')}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                   {parsed.length > 5 && (
@@ -250,6 +339,7 @@ function labelFor(field: keyof ColumnMap, t: (k: DictKey) => string): string {
     case 'tags':       return t('tags');
     case 'notes':      return t('notes');
     case 'status':     return t('status');
+    case 'campaign':   return t('source');
     default:           return String(field);
   }
 }

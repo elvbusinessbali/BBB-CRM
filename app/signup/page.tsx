@@ -8,6 +8,7 @@ import { useT } from '@/lib/i18n/LanguageProvider';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { SetupNeeded } from '@/components/SetupNeeded';
 import { Captcha, captchaRequired } from '@/components/Captcha';
+import { PasswordInput } from '@/components/PasswordInput';
 
 export default function SignupPage() {
   if (!isConfigured()) return <SetupNeeded />;
@@ -80,7 +81,7 @@ function SignupForm() {
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-sm text-neutral-700">{t('password')}</span>
-            <input type="password" required minLength={6} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
+            <PasswordInput required minLength={6} autoComplete="new-password" value={password} onChange={setPassword} className={inputCls} />
           </label>
           <Captcha onToken={setCaptchaToken} />
           {error && <p className="text-sm text-red-600">{error}</p>}

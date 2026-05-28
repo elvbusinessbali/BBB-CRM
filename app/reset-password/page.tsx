@@ -7,6 +7,7 @@ import { createClient, isConfigured } from '@/lib/supabase/client';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { SetupNeeded } from '@/components/SetupNeeded';
+import { PasswordInput } from '@/components/PasswordInput';
 
 export default function ResetPasswordPage() {
   if (!isConfigured()) return <SetupNeeded />;
@@ -79,11 +80,11 @@ function ResetForm() {
             <h1 className="text-2xl font-bold mb-1">{t('resetPasswordTitle')}</h1>
             <label className="flex flex-col gap-1">
               <span className="text-sm text-neutral-700">{t('newPassword')}</span>
-              <input type="password" required minLength={6} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
+              <PasswordInput required minLength={6} autoComplete="new-password" value={password} onChange={setPassword} className={inputCls} />
             </label>
             <label className="flex flex-col gap-1">
               <span className="text-sm text-neutral-700">{t('confirmPassword')}</span>
-              <input type="password" required minLength={6} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputCls} />
+              <PasswordInput required minLength={6} autoComplete="new-password" value={confirm} onChange={setConfirm} className={inputCls} />
             </label>
             {error && <p className="text-sm text-red-600">{error}</p>}
             {info && <p className="text-sm text-emerald-700">{info}</p>}

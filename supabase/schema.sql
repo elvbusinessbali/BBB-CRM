@@ -15,7 +15,9 @@ create table public.businesses (
 create table public.customers (
   id          uuid primary key default gen_random_uuid(),
   business_id uuid not null references public.businesses(id) on delete cascade,
-  name        text not null,
+  first_name  text not null,
+  last_name   text,
+  name        text not null, -- kept for legacy reads; app writes both
   phone       text,
   email       text,
   birthday    date,
@@ -28,6 +30,17 @@ create table public.customers (
 create index customers_business_idx on public.customers(business_id);
 create index customers_birthday_idx on public.customers(business_id, birthday);
 create index customers_status_idx on public.customers(business_id, status);
+
+create table public.business_tags (
+  id          uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  name        text not null,
+  color       text not null default 'pink',
+  created_at  timestamptz not null default now(),
+  unique (business_id, name)
+);
+
+create index business_tags_business_idx on public.business_tags(business_id);
 
 create table public.interactions (
   id          uuid primary key default gen_random_uuid(),
@@ -63,9 +76,10 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- Row Level Security: each business only sees its own data.
-alter table public.businesses   enable row level security;
-alter table public.customers    enable row level security;
-alter table public.interactions enable row level security;
+alter table public.businesses    enable row level security;
+alter table public.customers     enable row level security;
+alter table public.interactions  enable row level security;
+alter table public.business_tags enable row level security;
 
 create policy "own business: select" on public.businesses
   for select using (owner_id = auth.uid());
@@ -80,6 +94,13 @@ create policy "own customers: all" on public.customers
   );
 
 create policy "own interactions: all" on public.interactions
+  for all using (
+    business_id in (select id from public.businesses where owner_id = auth.uid())
+  ) with check (
+    business_id in (select id from public.businesses where owner_id = auth.uid())
+  );
+
+create policy "own tags: all" on public.business_tags
   for all using (
     business_id in (select id from public.businesses where owner_id = auth.uid())
   ) with check (

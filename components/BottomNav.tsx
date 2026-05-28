@@ -32,7 +32,7 @@ export function BottomNav() {
               <span
                 className={`flex items-center justify-center rounded-full transition-colors ${
                   it.primary
-                    ? 'bg-neutral-900 text-white h-10 w-10'
+                    ? 'bg-brand text-white h-10 w-10'
                     : active
                     ? 'text-neutral-900'
                     : 'text-neutral-400'

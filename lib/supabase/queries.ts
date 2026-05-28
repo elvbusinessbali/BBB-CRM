@@ -4,7 +4,9 @@ import type { Status } from '@/lib/status';
 export type Customer = {
   id: string;
   business_id: string;
-  name: string;
+  first_name: string;
+  last_name: string | null;
+  name: string; // legacy / display fallback; equals first + ' ' + last
   phone: string | null;
   email: string | null;
   birthday: string | null;
@@ -25,6 +27,20 @@ export type Interaction = {
   created_at: string;
 };
 
+export type BusinessTag = {
+  id: string;
+  business_id: string;
+  name: string;
+  color: string;
+  created_at: string;
+};
+
+/** Display name: first + last with space, falling back to the legacy `name` column. */
+export function fullName(c: Pick<Customer, 'first_name' | 'last_name' | 'name'>) {
+  if (c.first_name) return [c.first_name, c.last_name].filter(Boolean).join(' ');
+  return c.name ?? '';
+}
+
 export async function getMyBusiness(supabase: SupabaseClient) {
   const { data, error } = await supabase
     .from('businesses')
@@ -38,7 +54,7 @@ export async function getCustomers(supabase: SupabaseClient): Promise<Customer[]
   const { data, error } = await supabase
     .from('customers')
     .select('*')
-    .order('name', { ascending: true });
+    .order('first_name', { ascending: true });
   if (error) throw error;
   return data ?? [];
 }
@@ -58,6 +74,15 @@ export async function getInteractionsForCustomer(supabase: SupabaseClient, custo
     .from('interactions')
     .select('*')
     .eq('customer_id', customerId)
+    .order('occurred_at', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getAllInteractions(supabase: SupabaseClient): Promise<Interaction[]> {
+  const { data, error } = await supabase
+    .from('interactions')
+    .select('*')
     .order('occurred_at', { ascending: false });
   if (error) throw error;
   return data ?? [];
@@ -90,5 +115,41 @@ export async function getInteractionTotalsPerCustomer(supabase: SupabaseClient) 
 
 export async function updateCustomerStatus(supabase: SupabaseClient, id: string, status: Status) {
   const { error } = await supabase.from('customers').update({ status }).eq('id', id);
+  if (error) throw error;
+}
+
+// --- Business tag catalog ----------------------------------------------------
+
+const TAG_COLORS = ['pink', 'rose', 'sky', 'emerald', 'amber', 'violet'] as const;
+export type TagColor = (typeof TAG_COLORS)[number];
+export { TAG_COLORS };
+
+export async function getBusinessTags(supabase: SupabaseClient): Promise<BusinessTag[]> {
+  const { data, error } = await supabase
+    .from('business_tags')
+    .select('*')
+    .order('name', { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function createBusinessTag(
+  supabase: SupabaseClient,
+  businessId: string,
+  name: string,
+  color: TagColor = 'pink'
+): Promise<BusinessTag> {
+  const trimmed = name.trim();
+  const { data, error } = await supabase
+    .from('business_tags')
+    .insert({ business_id: businessId, name: trimmed, color })
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteBusinessTag(supabase: SupabaseClient, id: string) {
+  const { error } = await supabase.from('business_tags').delete().eq('id', id);
   if (error) throw error;
 }

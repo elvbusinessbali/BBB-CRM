@@ -8,6 +8,7 @@ import {
   getInteractionsForCustomer,
   getMyBusiness,
   updateCustomerStatus,
+  fullName,
   type Customer,
   type Interaction,
 } from '@/lib/supabase/queries';
@@ -105,7 +106,7 @@ export default function CustomerDetailPage() {
 
   return (
     <>
-      <AppHeader title={customer.name} back />
+      <AppHeader title={fullName(customer)} back />
       <main className="px-4 py-4 flex flex-col gap-4">
         <section className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col gap-3">
           <div className="flex items-start justify-between gap-3">
@@ -153,7 +154,7 @@ export default function CustomerDetailPage() {
           )}
           <button
             onClick={() => setShowLog(true)}
-            className="flex-1 rounded-full bg-neutral-900 text-white py-3 font-medium"
+            className="flex-1 rounded-full bg-brand text-white py-3 font-medium"
           >
             + {t('logInteraction')}
           </button>
@@ -329,7 +330,7 @@ function LogInteractionModal({
     }
   }
 
-  const inputCls = 'w-full border border-neutral-200 bg-white rounded-xl px-3.5 py-3 text-base outline-none focus:border-neutral-900';
+  const inputCls = 'w-full border border-neutral-200 bg-white rounded-xl px-3.5 py-3 text-base outline-none focus:border-brand';
 
   return (
     <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40">
@@ -364,7 +365,7 @@ function LogInteractionModal({
         <button
           type="submit"
           disabled={saving}
-          className="rounded-full bg-neutral-900 text-white py-3 font-medium disabled:opacity-60 mt-1"
+          className="rounded-full bg-brand text-white py-3 font-medium disabled:opacity-60 mt-1"
         >
           {saving ? t('saving') : t('save')}
         </button>

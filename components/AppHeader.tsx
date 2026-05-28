@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { LanguageToggle } from '@/components/LanguageToggle';
 
-export function AppHeader({ title, back }: { title?: string; back?: boolean }) {
+export function AppHeader({ title, back, right }: { title?: string; back?: boolean; right?: React.ReactNode }) {
   const router = useRouter();
   const { t } = useT();
 
@@ -32,6 +32,7 @@ export function AppHeader({ title, back }: { title?: string; back?: boolean }) {
           <h1 className="text-base font-semibold truncate">{title ?? t('appName')}</h1>
         </div>
         <div className="flex items-center gap-2">
+          {right}
           <LanguageToggle />
           <button
             onClick={handleLogout}

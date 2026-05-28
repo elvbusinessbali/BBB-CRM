@@ -8,6 +8,7 @@ import {
   getInteractionTotalsPerCustomer,
   getLastInteractionPerCustomer,
   getMyBusiness,
+  fullName,
   type Customer,
 } from '@/lib/supabase/queries';
 import { STATUSES, STATUS_META } from '@/lib/status';
@@ -91,7 +92,7 @@ export default function DashboardPage() {
                 label={t('birthdaysToday')}
                 value={birthdays.length}
                 accent="rose"
-                detail={birthdays.map((c) => c.name).join(', ') || undefined}
+                detail={birthdays.map(fullName).join(', ') || undefined}
               />
             </div>
 
@@ -124,7 +125,7 @@ export default function DashboardPage() {
               <div className="flex flex-col gap-2">
                 <Link
                   href="/customers/new"
-                  className="rounded-2xl bg-neutral-900 text-white px-4 py-3 font-medium text-center"
+                  className="rounded-2xl bg-brand text-white px-4 py-3 font-medium text-center"
                 >
                   + {t('addCustomer')}
                 </Link>

@@ -7,6 +7,7 @@ import { createClient, isConfigured } from '@/lib/supabase/client';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { SetupNeeded } from '@/components/SetupNeeded';
+import { Captcha, captchaRequired } from '@/components/Captcha';
 
 export default function SignupPage() {
   if (!isConfigured()) return <SetupNeeded />;
@@ -22,17 +23,27 @@ function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setInfo(null);
+    if (captchaRequired() && !captchaToken) {
+      setError(t('captchaRequired'));
+      return;
+    }
     setLoading(true);
     const supabase = createClient();
+    const emailRedirectTo = `${window.location.origin}/auth/callback?next=/dashboard`;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { business_name: businessName } },
+      options: {
+        data: { business_name: businessName },
+        emailRedirectTo,
+        captchaToken: captchaToken || undefined,
+      },
     });
     setLoading(false);
     if (error) {
@@ -48,7 +59,7 @@ function SignupForm() {
   }
 
   const inputCls =
-    'border border-neutral-200 bg-white rounded-xl px-3.5 py-3 text-base outline-none focus:border-neutral-900';
+    'border border-neutral-200 bg-white rounded-xl px-3.5 py-3 text-base outline-none focus:border-brand';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -71,12 +82,13 @@ function SignupForm() {
             <span className="text-sm text-neutral-700">{t('password')}</span>
             <input type="password" required minLength={6} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
           </label>
+          <Captcha onToken={setCaptchaToken} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           {info && <p className="text-sm text-emerald-700">{info}</p>}
           <button
             type="submit"
-            disabled={loading}
-            className="rounded-full bg-neutral-900 text-white py-3 font-medium hover:bg-neutral-800 disabled:opacity-60"
+            disabled={loading || (captchaRequired() && !captchaToken)}
+            className="rounded-full bg-brand text-white py-3 font-medium hover:bg-brand-deep disabled:opacity-60"
           >
             {loading ? t('saving') : t('signupCta')}
           </button>

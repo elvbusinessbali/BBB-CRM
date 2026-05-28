@@ -21,7 +21,7 @@ export default function Home() {
           <div className="flex flex-col gap-3">
             <Link
               href="/signup"
-              className="rounded-full bg-neutral-900 text-white py-3 font-medium hover:bg-neutral-800"
+              className="rounded-full bg-brand text-white py-3 font-medium hover:bg-brand-deep"
             >
               {t('signup')}
             </Link>

@@ -8,13 +8,13 @@ export function LanguageToggle() {
     <div className="inline-flex rounded-full border border-neutral-200 bg-white text-xs">
       <button
         onClick={() => setLang('en')}
-        className={`px-3 py-1 rounded-full ${lang === 'en' ? 'bg-neutral-900 text-white' : 'text-neutral-600'}`}
+        className={`px-3 py-1 rounded-full ${lang === 'en' ? 'bg-brand text-white' : 'text-neutral-600'}`}
       >
         EN
       </button>
       <button
         onClick={() => setLang('id')}
-        className={`px-3 py-1 rounded-full ${lang === 'id' ? 'bg-neutral-900 text-white' : 'text-neutral-600'}`}
+        className={`px-3 py-1 rounded-full ${lang === 'id' ? 'bg-brand text-white' : 'text-neutral-600'}`}
       >
         ID
       </button>

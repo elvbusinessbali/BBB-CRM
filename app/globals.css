@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@theme {
+  /* Soft pink brand palette. brand = the CTA color, brand-soft = backgrounds, brand-deep = hover. */
+  --color-brand: #f472b6;        /* pink-400 — soft, readable on white */
+  --color-brand-deep: #ec4899;   /* pink-500 (hover) */
+  --color-brand-soft: #fce7f3;   /* pink-100 (tint backgrounds) */
+  --color-brand-ink: #831843;    /* pink-900 (high-contrast text on soft) */
+}
+
 :root {
   --background: #fafafa;
   --foreground: #171717;

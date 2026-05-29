@@ -290,6 +290,10 @@ export function mapRow(row: Record<string, string>, cols: ColumnMap): ParsedCust
 /**
  * CSV "starter template" — the headers our importer recognizes, plus one example row.
  * Users can download this, fill it in, and re-upload without thinking about column mapping.
+ *
+ * Note: we DON'T include a Campaign column. Campaign attribution is picked from a
+ * dropdown of your existing campaigns on the import page — that avoids typos and
+ * lets you set it for the whole batch in one click.
  */
 export function buildTemplateCsv(): string {
   const headers = [
@@ -301,7 +305,6 @@ export function buildTemplateCsv(): string {
     'Tags',
     'Notes',
     'Status',
-    'Campaign',
   ];
   const sample = [
     'Andini',
@@ -312,7 +315,6 @@ export function buildTemplateCsv(): string {
     'VIP; Regular',
     'Member sejak 2024',
     'cold',
-    '',
   ];
   return [headers.join(','), sample.join(',')].join('\n');
 }

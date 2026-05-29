@@ -126,8 +126,8 @@ export const dict = {
     importedN: '✓ Imported {n} customers',
     downloadTemplate: 'Download template',
     attributeAll: 'Where did these customers come from?',
-    attributeAllHint: 'Pick a campaign to attribute ALL imported customers to. Leave on "Per row" if your file has a Campaign column.',
-    attributePerRow: 'Per row (read from CSV)',
+    attributeAllHint: 'Pick the campaign for ALL imported customers — much cleaner than typing campaign names into your CSV.',
+    attributePerRow: 'No campaign / mixed',
     campaignResolveStatus: '{matched} of {total} rows match a campaign by name.',
 
     // Edit + tag management
@@ -330,8 +330,8 @@ export const dict = {
     importedN: '✓ {n} customer berhasil diimport',
     downloadTemplate: 'Download template',
     attributeAll: 'Customer ini dari mana?',
-    attributeAllHint: 'Pilih kampanye buat ngatribusi SEMUA customer yang diimport. Tetap di "Per baris" kalau file kamu udah punya kolom Campaign.',
-    attributePerRow: 'Per baris (baca dari CSV)',
+    attributeAllHint: 'Pilih kampanye untuk SEMUA customer yang diimport — lebih simpel daripada ngetik nama kampanye di CSV.',
+    attributePerRow: 'Tidak dari kampanye / campur',
     campaignResolveStatus: '{matched} dari {total} baris cocok ke kampanye berdasarkan nama.',
 
     // Edit + tag management

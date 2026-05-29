@@ -16,13 +16,32 @@ export type ParsedCustomer = {
 };
 
 /* ------------------------------------------------------------------ */
-/* CSV parser — handles quoted strings, embedded commas, escaped quotes */
+/* CSV parser — handles , ; or \t delimiters, quoted strings,          */
+/*              embedded delimiters, escaped quotes                    */
 /* ------------------------------------------------------------------ */
+
+/** Inspect the first non-empty line to guess the column separator. */
+function detectDelimiter(text: string): ',' | ';' | '\t' {
+  const sample = text.split(/\r?\n/).find((l) => l.length > 0) ?? '';
+  // Strip quoted segments so delimiters inside quotes don't skew the count
+  const stripped = sample.replace(/"[^"]*"/g, '');
+  const counts = {
+    ',': (stripped.match(/,/g) || []).length,
+    ';': (stripped.match(/;/g) || []).length,
+    '\t': (stripped.match(/\t/g) || []).length,
+  };
+  const best = (Object.keys(counts) as Array<',' | ';' | '\t'>).reduce(
+    (a, b) => (counts[a] >= counts[b] ? a : b)
+  );
+  return counts[best] > 0 ? best : ',';
+}
+
 export function parseCsv(text: string): Record<string, string>[] {
   // Strip UTF-8 BOM
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
 
-  const rows = splitRows(text);
+  const delim = detectDelimiter(text);
+  const rows = splitRows(text, delim);
   if (rows.length === 0) return [];
 
   const headers = rows[0].map((h) => h.trim());
@@ -39,7 +58,7 @@ export function parseCsv(text: string): Record<string, string>[] {
   return out;
 }
 
-function splitRows(text: string): string[][] {
+function splitRows(text: string, delim: ',' | ';' | '\t'): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let cell = '';
@@ -63,7 +82,7 @@ function splitRows(text: string): string[][] {
       inQuotes = true;
       continue;
     }
-    if (ch === ',') {
+    if (ch === delim) {
       row.push(cell);
       cell = '';
       continue;
@@ -327,7 +346,8 @@ function parseDate(s: string): string | null {
     let d = parseInt(m[1], 10);
     let mo = parseInt(m[2], 10);
     let y = parseInt(m[3], 10);
-    if (y < 100) y += 2000;
+    // Two-digit year heuristic for birthdays: 30..99 → 1930..1999, 00..29 → 2000..2029
+    if (y < 100) y += y >= 30 ? 1900 : 2000;
     // Guess: if first > 12, it's day-first. Otherwise prefer day-first too (Indonesian/European default).
     if (d > 12 && mo <= 12) {
       // already day-first
